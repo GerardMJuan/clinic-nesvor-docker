@@ -1,0 +1,45 @@
+# Docker Compose configuration for Fetal MRI Reconstruction Web Application
+#
+# Usage:
+#   docker-compose -f docker-compose.webapp.yml up -d
+#
+# Access at: http://localhost:8501
+
+version: '3.8'
+
+services:
+  fetal-mri-webapp:
+    build:
+      context: .
+      dockerfile: Dockerfile.webapp
+    container_name: fetal-mri-reconstruction
+    ports:
+      - "8501:8501"
+    volumes:
+      # Persistent storage for sessions (7-day retention)
+      - fetal_mri_sessions:/app/data/sessions
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - CUDA_VISIBLE_DEVICES=0
+      - STORAGE_DIR=/app/data/sessions
+      - RETENTION_DAYS=7
+    restart: unless-stopped
+    # Resource limits for stability
+    shm_size: 8g
+    # Logging configuration
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  fetal_mri_sessions:
+    driver: local
