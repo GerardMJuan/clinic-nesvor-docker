@@ -1,0 +1,16 @@
+# Requirements for Fetal MRI Reconstruction Web Application
+#
+# Core dependencies (NeSVoR dependencies provided by base Docker image)
+
+# Web framework
+streamlit>=1.29.0
+
+# Medical imaging
+nibabel>=3.2.0
+
+# Scientific computing
+numpy>=1.19.0
+
+# Visualization
+plotly>=5.0.0
+matplotlib>=3.5.0

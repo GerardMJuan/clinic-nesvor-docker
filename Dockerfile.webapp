@@ -1,0 +1,43 @@
+# Dockerfile for Fetal MRI Reconstruction Web Application
+# Based on NeSVoR image with Streamlit web interface
+
+FROM junshenxu/nesvor:v0.5.0
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    STORAGE_DIR=/app/data/sessions \
+    RETENTION_DAYS=7
+
+# Install web application dependencies
+RUN pip install --no-cache-dir \
+    streamlit>=1.29.0 \
+    nibabel>=3.2.0 \
+    numpy>=1.19.0 \
+    plotly>=5.0.0 \
+    matplotlib>=3.5.0
+
+# Set working directory
+WORKDIR /app
+
+# Copy application code
+COPY . .
+
+# Create data directory for sessions
+RUN mkdir -p /app/data/sessions
+
+# Expose Streamlit port
+EXPOSE 8501
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl --fail http://localhost:8501/_stcore/health || exit 1
+
+# Run Streamlit
+ENTRYPOINT ["streamlit", "run", "webapp/app.py", \
+            "--server.port=8501", \
+            "--server.address=0.0.0.0", \
+            "--server.headless=true", \
+            "--server.maxUploadSize=500", \
+            "--server.enableCORS=false", \
+            "--server.enableXsrfProtection=true"]
