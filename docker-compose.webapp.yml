@@ -4,6 +4,20 @@
 #   docker-compose -f docker-compose.webapp.yml up -d
 #
 # Access at: http://localhost:8501
+#
+# BACKUP OPTIONS:
+# ===============
+# To enable automatic backup of reconstruction results, uncomment ONE of the
+# backup volume options below and set BACKUP_ENABLED=true
+#
+# Option 1: Local folder backup (to another disk/USB)
+#   - backup_local:/app/data/backups
+#
+# Option 2: Google Drive via rclone mount
+#   - /path/to/gdrive/mount:/app/data/backups
+#
+# Option 3: NAS/Network share
+#   - /mnt/nas/fetal-mri-backups:/app/data/backups
 
 version: '3.8'
 
@@ -18,6 +32,17 @@ services:
     volumes:
       # Persistent storage for sessions (7-day retention)
       - fetal_mri_sessions:/app/data/sessions
+
+      # BACKUP: Uncomment ONE of these options:
+      # Option 1: Local backup folder
+      # - /path/to/backup/folder:/app/data/backups
+
+      # Option 2: Mounted Google Drive (via rclone)
+      # - /mnt/gdrive/fetal-mri-backups:/app/data/backups
+
+      # Option 3: NAS share
+      # - /mnt/nas/backups:/app/data/backups
+
     deploy:
       resources:
         reservations:
@@ -30,6 +55,9 @@ services:
       - CUDA_VISIBLE_DEVICES=0
       - STORAGE_DIR=/app/data/sessions
       - RETENTION_DAYS=7
+      # BACKUP: Set to "true" to enable automatic backup
+      - BACKUP_ENABLED=false
+      - BACKUP_DIR=/app/data/backups
     restart: unless-stopped
     # Resource limits for stability
     shm_size: 8g

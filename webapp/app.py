@@ -85,7 +85,8 @@ def run_pipeline(session: Session, files: list, resolution: float, bias_correcti
         result_path = run_reconstruction(
             session.session_dir,
             config=config,
-            progress_callback=progress_callback
+            progress_callback=progress_callback,
+            session_id=session.session_id  # For backup
         )
         session.set_status("complete", str(result_path))
         st.success("Reconstruction complete!")

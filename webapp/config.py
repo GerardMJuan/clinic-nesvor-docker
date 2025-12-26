@@ -7,6 +7,13 @@ import os
 STORAGE_DIR = Path(os.environ.get("STORAGE_DIR", "/app/data/sessions"))
 RETENTION_DAYS = int(os.environ.get("RETENTION_DAYS", 7))
 
+# Backup settings
+# Set BACKUP_DIR to enable automatic backup of reconstruction results
+# Can point to: local folder, mounted Google Drive, NAS, USB drive, etc.
+# Example: /mnt/gdrive/fetal-mri-backups, /mnt/nas/backups, /mnt/usb/backups
+BACKUP_ENABLED = os.environ.get("BACKUP_ENABLED", "false").lower() == "true"
+BACKUP_DIR = Path(os.environ.get("BACKUP_DIR", "/app/data/backups"))
+
 # Processing defaults
 DEFAULT_RESOLUTION = 0.8  # mm
 DEFAULT_BIAS_CORRECTION = True

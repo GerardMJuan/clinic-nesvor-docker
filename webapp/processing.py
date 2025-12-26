@@ -205,7 +205,8 @@ class ReconstructionPipeline:
 def run_reconstruction(
     session_dir: Path,
     config: dict | None = None,
-    progress_callback: Callable[[str, int], None] | None = None
+    progress_callback: Callable[[str, int], None] | None = None,
+    session_id: str | None = None
 ) -> Path:
     """
     Convenience function to run reconstruction pipeline.
@@ -214,9 +215,20 @@ def run_reconstruction(
         session_dir: Path to session directory containing inputs/
         config: Optional configuration dict with 'resolution', 'bias_correction'
         progress_callback: Optional callback for progress updates
+        session_id: Optional session ID for backup naming
 
     Returns:
         Path to reconstructed volume
     """
     pipeline = ReconstructionPipeline(session_dir, config)
-    return pipeline.run(progress_callback)
+    result_path = pipeline.run(progress_callback)
+
+    # Backup result if enabled
+    if session_id and result_path.exists():
+        try:
+            from webapp.backup import backup_result
+            backup_result(session_id, result_path)
+        except Exception as e:
+            logger.warning(f"Backup failed (non-critical): {e}")
+
+    return result_path
